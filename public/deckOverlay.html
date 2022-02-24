@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <title>DeckOverlay</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <script src="https://unpkg.com/deck.gl@^8.6.0/dist.min.js"></script>
+    <script src="https://unpkg.com/@deck.gl/carto@^8.6.0/dist.min.js"></script>  
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+      #map { height: 100%;}
+      html,
+      body { height: 100%; margin: 0; padding: 0; }
+      #wrapper { position: relative; }
+      #over_map { 
+        position: fixed; 
+        align-items: center;
+        bottom: 35; 
+        left: 10; 
+        padding: 4px;
+        z-index: 99;
+        background: #868484;
+        color: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="map"></div>
+      <div id="over_map">
+        <input type="checkbox" disabled=true id="OSMLayer">OSM IT Offices (from query)<br>
+        <input type="checkbox" disabled=true id="queryLayer">PyPI Downloads (from table)<br>
+      </div>
+    </div>
+  </body>
+  <script type="text/javascript">
+
+    // normal gmaps configuration
+    let map;
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 38, lng: -98 },
+        zoom: 4,
+        mapId: 'be04d40ba8499939',
+      });
+
+      // Credential to access data sources -> created through CARTO API
+      deck.carto.setDefaultCredentials({
+        apiBaseUrl: 'https://gcp-us-east1.api.carto.com',
+        apiVersion: deck.carto.API_VERSIONS.V3,
+        accessToken: 'eyJhbGciOiJIUzI1NiJ9.eyJhIjoiYWNfN3hoZnd5bWwiLCJqdGkiOiIwMDIwMjIzNSJ9.vsYdc8P1_DQQdBr8B7zEhx4avXRnFSLP6JDYLZ_gmc0'
+      });
+
+      // color ramp: blue -> red
+      const colors = [[0, 0, 255], [255, 0, 0]];
+      const colorScale = d3.scale.linear().range(colors).domain([0, 3]); 
+
+      // create Carto Layers
+      const layers = {
+        'pypiDownloads': new deck.carto.CartoLayer({
+            id: 'pypiDownloads',
+            connection: 'carto_dw',
+            type: deck.carto.MAP_TYPES.TABLE,
+            data: `cartobq.public_account.gmaps_carto_webinar_pypi_downloads`,
+            getLineColor: [255, 255, 255, 255],
+            getFillColor: d => colorScale(d.properties.downloads_per1000),
+            pointRadiusMinPixels: 1.8,
+            lineWidthMinPixels: 1,
+            lineWidthMaxPixels: 0.3,
+            onDataLoad: () => {
+            document.getElementById("queryLayer").disabled = false
+            document.getElementById("queryLayer").checked = true
+            }
+        }),
+        'ITOffices': new deck.carto.CartoLayer({
+          id: 'ITOffices',
+          connection: 'carto_dw',
+          type: deck.carto.MAP_TYPES.QUERY,
+          data: `SELECT osm_id, geometry as geom
+            FROM \`bigquery-public-data.geo_openstreetmap.planet_features\`
+            WHERE ('office', 'it') IN (SELECT (key, value) FROM UNNEST(all_tags))`,
+          getLineColor: [0, 0, 0, 255],
+          getFillColor: [0, 255, 0, 255],
+          pointRadiusMinPixels: 1,
+          lineWidthMinPixels: 1,
+          lineWidthMaxPixels: 0.3,
+          onDataLoad: () => {
+            document.getElementById("OSMLayer").disabled = false
+            document.getElementById("OSMLayer").checked = true
+          }
+        })
+      };
+      
+      // create DECK Overlay with created layers
+      const deckOverlay = new deck.GoogleMapsOverlay({layers: Object.values(layers)});
+      deckOverlay.setMap(map);
+      
+      // Layer selector
+      function handleVisibility(e, id) {
+        layers[id] = layers[id].clone({visible: e.currentTarget.checked});
+        deckOverlay.setProps({layers: Object.values(layers)});
+        console.log(deckOverlay.props.layers.map(l => { return {id: l.id, visible: l.props.visible} }))
+      }
+      document.getElementById('OSMLayer').addEventListener('change', (e) => handleVisibility(e, 'ITOffices'))
+      document.getElementById('queryLayer').addEventListener('change', (e) => handleVisibility(e, 'pypiDownloads'))
+    }
+
+  </script>
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0sh4Ixj_YoKyKeP4JPluGjJ2Crgb6XRg&callback=initMap&libraries=&v=beta"
+    async
+  ></script>
+</html>
