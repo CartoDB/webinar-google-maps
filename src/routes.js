@@ -30,6 +30,7 @@ const routes = [
     children: [
       // { path: '/', element: <Navigate to='/<your default view>' /> },
       { path: ROUTE_PATHS.DEFAULT, element: <Downloads /> },
+      { path: ROUTE_PATHS.DOWNLOADS, element: <Downloads /> },
       // [hygen] Add routes
     ],
   },

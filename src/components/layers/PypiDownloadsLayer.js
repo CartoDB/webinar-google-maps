@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { CartoLayer } from '@deck.gl/carto';
+import { CartoLayer, colorContinuous } from '@deck.gl/carto';
 import { LEGEND_TYPES } from "@carto/react-ui";
 import { updateLayer } from "@carto/react-redux";
 import { selectSourceById } from '@carto/react-redux';
@@ -7,20 +7,21 @@ import { useCartoLayerProps } from '@carto/react-api';
 import htmlForFeature from 'utils/htmlForFeature';
 import * as d3 from 'd3';
 
+
 export const PYPI_DOWNLOADS_LAYER_ID = 'pypiDownloadsLayer';
 
 
-const COLORS = [[44, 123, 182], [171, 217, 233], [243, 243, 93], [241, 138, 40], [215, 25, 28]];
-const LABELS = ['0', '5', '50', '1500'];
-const colorScale = d3.scaleQuantile().range(COLORS).domain([0, 6]);
+const colorRamp = 'Teal';
+const domain = [0, 5, 30, 300, 1500];
+
 const layerConfig = {
   title: 'PyPI Downloads by Country',
   visible: true,
   legend: {
     //attr: 'downloads_per1000',
-    type: LEGEND_TYPES.BINS,
-    labels: LABELS,
-    colors: COLORS,
+    type: LEGEND_TYPES.CONTINUOUS_RAMP,
+    labels: domain,
+    colors: colorRamp,
   },
 };
 
@@ -35,7 +36,11 @@ export default function PypiDownloadsLayer() {
       ...cartoLayerProps,
       id: PYPI_DOWNLOADS_LAYER_ID,
       visible: pypiDownloadsLayer.visible,
-      getFillColor: d => colorScale(Math.log(d.properties.downloads_per1000)),
+      getFillColor: colorContinuous({
+        attr: 'downloads_per1000',
+        domain: domain,
+        colors: colorRamp,
+      }), 
       pointRadiusMinPixels: 2,
       opacity: 0.7,
       stroke: false,

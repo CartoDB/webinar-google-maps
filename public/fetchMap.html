@@ -7,17 +7,10 @@
       #map {height: 100%;}
       html,
       body {height: 100%; margin: 0; padding: 0;}
-      #over_map { position: fixed; align-items: center; bottom: 35; left: 10; padding: 4px; z-index: 99; background: #868484; color: #ffffff; }
     </style>
   </head>
   <body>
-    <div id="wrapper">
-      <div id="map"></div>
-      <div id="over_map">
-        <input type="checkbox" disabled=true id="OSMLayer">OSM Layer<br>
-        <input type="checkbox" disabled=true id="queryLayer">Query Layer<br>
-      </div>
-    </div>   
+      <div id="map"></div>  
   </body>
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwBWrN56Uq0xd1BXpC_IoQjqE42kbPuWs&callback=initMap&libraries=&v=beta"
@@ -28,16 +21,16 @@
     let map;
     function initMap() {
       map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 38, lng: -98 },
-        zoom: 4,
+        center: { lat: 0, lng: 0 },
+        zoom: 3,
         mapId: '47a6b26c0a4b9261',
       });
-      // fetchMap to retrieve precofigured layers.
-      const cartoMapId = 'aea16f54-f123-4ed6-a9c5-8a6e1e4f7070';
+      const cartoMapId = '462b00dc-1117-4d1e-bc1e-19f68d516877';
       deck.carto.fetchMap({cartoMapId}).then(({ layers }) => {
-        const deckOverlay = new deck.GoogleMapsOverlay({ layers: layers });
+        const deckOverlay = new deck.GoogleMapsOverlay({ layers });
         deckOverlay.setMap(map);
-      });
+      });	
+
     }
   </script>
 </html>

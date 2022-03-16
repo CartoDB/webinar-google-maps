@@ -15,12 +15,12 @@ export const initialState = {
     apiVersion: API_VERSIONS.V3,
     apiBaseUrl: 'https://gcp-us-east1.api.carto.com',
   },
-  googleApiKey: 'AIzaSyAwBWrN56Uq0xd1BXpC_IoQjqE42kbPuWs', 
+  googleApiKey: '<API_KEY>', 
   googleMapId: '47a6b26c0a4b9261', 
   oauth: {
     domain: 'auth.carto.com',
     // Type here your application client id
-    clientId: 'r0sb7lvlp2rt2Ok2wOQ5uSkLIbfrznFy',
+    clientId: '<CLIENT_ID>',
     scopes: [
       'read:current_user',
       'update:current_user',
