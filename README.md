@@ -1,3 +1,13 @@
+# CARTO for Google Maps
+
+With this repo you will be able to replicate the demos shown on CARTO's webinar [Developing Spatial Applications with Google Maps and CARTO
+](https://www.youtube.com/watch?v=BpkgelUEvBQ).
+
+On the public directory you'll be able to find the `deckOverlay.html` and `fetchMap.html` standalone Google Maps applications. In order to make them work you'll need to set up your own Google Maps Javascript enabled API KEY.
+The react application has the CARTO for React default project structre. You will also need to set up the Google Maps API KEY on the `initialStateSlice.js` file.
+
+ ------
+
 # CARTO for React
 
 Skeleton Template fo CARTO Cloud Native
